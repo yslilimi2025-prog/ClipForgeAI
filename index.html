@@ -1,1 +1,642 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ClipForgeAI — AI Shorts Generator</title>
 
+<style>
+:root{
+--bg:#07080d;--panel:#0f1119;--panel2:#151824;
+--text:#f7f7fb;--muted:#969caf;--line:#252a39;
+--a:#8b5cf6;--b:#ec4899;--ok:#35d07f;--danger:#fb7185
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+margin:0;
+background:radial-gradient(circle at 50% -10%,#241546 0,#0b0c13 35%,#07080d 70%);
+color:var(--text);
+font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+}
+button{font:inherit;cursor:pointer}
+.nav{
+height:72px;display:flex;align-items:center;justify-content:space-between;
+padding:0 6%;border-bottom:1px solid #ffffff0b;position:sticky;top:0;
+background:#07080ddd;backdrop-filter:blur(18px);z-index:10
+}
+.logo{font-size:21px;font-weight:850}
+.logo span{
+background:linear-gradient(90deg,#a78bfa,#f472b6);
+-webkit-background-clip:text;color:transparent
+}
+.links{display:flex;gap:27px;color:var(--muted);font-size:14px}
+.links a{color:inherit;text-decoration:none}
+.links a:hover{color:#fff}
+.btn{
+border:0;border-radius:12px;padding:11px 17px;font-weight:750;transition:.18s
+}
+.btn:hover{transform:translateY(-1px)}
+.primary{
+background:linear-gradient(135deg,var(--a),var(--b));
+color:#fff;box-shadow:0 10px 35px #8b5cf633
+}
+.ghost{background:#ffffff08;color:#fff;border:1px solid var(--line)}
+.hero{max-width:1120px;margin:auto;padding:92px 6% 65px;text-align:center}
+.badge{
+display:inline-flex;padding:7px 12px;border:1px solid #8b5cf655;
+border-radius:99px;background:#8b5cf611;color:#c4b5fd;font-size:13px
+}
+.hero h1{
+font-size:clamp(44px,7vw,78px);line-height:.96;margin:22px 0;
+letter-spacing:-4px
+}
+.gradient{
+background:linear-gradient(90deg,#c4b5fd,#f9a8d4);
+-webkit-background-clip:text;color:transparent
+}
+.hero p{
+max-width:690px;margin:0 auto 30px;color:var(--muted);
+font-size:18px;line-height:1.6
+}
+.actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.demo{max-width:1000px;margin:15px auto 80px;padding:0 6%}
+.app{
+border:1px solid #ffffff12;
+background:linear-gradient(145deg,#131621,#0c0e15);
+border-radius:26px;padding:23px;box-shadow:0 35px 120px #000a
+}
+.appbar{
+display:flex;justify-content:space-between;align-items:center;margin-bottom:18px
+}
+.appbar b{font-size:17px}
+.status{
+font-size:12px;color:#86efac;background:#22c55e14;
+border:1px solid #22c55e33;padding:6px 9px;border-radius:99px
+}
+.drop{
+min-height:270px;border:1.5px dashed #454a5b;border-radius:19px;
+display:flex;align-items:center;justify-content:center;text-align:center;
+padding:25px;background:#090b11;transition:.2s
+}
+.drop.drag{border-color:#a78bfa;background:#8b5cf60c}
+.drop h3{margin:10px 0 7px}
+.drop p{color:var(--muted);margin:0 0 18px;font-size:14px}
+.icon{font-size:40px}
+.fileinfo{
+display:none;margin-top:18px;text-align:left;background:#ffffff06;
+border:1px solid var(--line);padding:14px;border-radius:14px
+}
+.filetop{display:flex;justify-content:space-between;gap:12px}
+.filemeta{color:var(--muted);font-size:12px;margin-top:5px}
+.limits{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pill{
+padding:5px 8px;border-radius:99px;background:#8b5cf614;
+border:1px solid #8b5cf633;color:#c4b5fd;font-size:11px
+}
+.warning{
+color:#fda4af;background:#fb718511;border:1px solid #fb718533;
+padding:10px;border-radius:10px;margin-top:12px;font-size:13px;display:none
+}
+.process{display:none;margin-top:16px}
+.bar{height:9px;background:#202433;border-radius:99px;overflow:hidden}
+.fill{
+height:100%;width:0;background:linear-gradient(90deg,var(--a),var(--b));
+transition:width .25s
+}
+.procrow{
+display:flex;justify-content:space-between;color:var(--muted);
+font-size:12px;margin-bottom:8px
+}
+.results{display:none;margin-top:18px}
+.resulthead{
+display:flex;justify-content:space-between;align-items:center;margin-bottom:12px
+}
+.clipgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.clip{
+background:#0a0c12;border:1px solid var(--line);
+border-radius:15px;padding:12px
+}
+.clip strong{font-size:13px}
+.clip small{display:block;color:var(--muted);margin-top:4px}
+.features{max-width:1100px;margin:auto;padding:20px 6% 90px}
+.section-title{text-align:center;margin-bottom:35px}
+.section-title h2{font-size:34px;margin:0 0 9px}
+.section-title p{color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.card{
+background:#0f1119cc;border:1px solid var(--line);
+border-radius:18px;padding:23px
+}
+.card .ico{font-size:26px}
+.card h3{margin:13px 0 8px}
+.card p{color:var(--muted);line-height:1.55;font-size:14px}
+.pricing{
+padding:80px 6%;background:#090a10;
+border-top:1px solid var(--line);border-bottom:1px solid var(--line)
+}
+.plans{
+max-width:1050px;margin:auto;
+display:grid;grid-template-columns:repeat(3,1fr);gap:16px
+}
+.plan{
+background:#10121a;border:1px solid var(--line);
+border-radius:20px;padding:25px;position:relative
+}
+.plan.pop{
+border-color:#8b5cf677;box-shadow:0 0 55px #8b5cf615
+}
+.tag{
+position:absolute;right:15px;top:15px;font-size:11px;
+padding:5px 8px;border-radius:99px;background:#8b5cf622;color:#c4b5fd
+}
+.price{font-size:34px;font-weight:800;margin:18px 0}
+.price small{font-size:13px;color:var(--muted);font-weight:400}
+.plan ul{padding-left:18px;color:var(--muted);line-height:2;font-size:14px}
+.plan button{width:100%;margin-top:15px}
+.footer{text-align:center;color:#777b8b;padding:30px;font-size:13px}
+
+@media(max-width:750px){
+.links{display:none}
+.grid,.plans,.clipgrid{grid-template-columns:1fr}
+.hero{padding-top:60px}
+.hero h1{letter-spacing:-2px}
+.nav{padding:0 5%}
+}
+</style>
+</head>
+
+<body>
+
+<nav class="nav">
+<div class="logo">Clip<span>ForgeAI</span></div>
+<div class="links">
+<a href="#features">Fonctions</a>
+<a href="#pricing">Tarifs</a>
+<a href="#app">Créer</a>
+</div>
+<button class="btn primary" onclick="scrollToApp()">Commencer</button>
+</nav>
+
+<section class="hero">
+<div class="badge">✦ MVP 0 DH · IA + Supabase + Vercel</div>
+
+<h1>
+1 vidéo.<br>
+<span class="gradient">Plusieurs Shorts.</span>
+</h1>
+
+<p>
+ClipForgeAI analyse ta vidéo, repère les moments les plus intéressants
+et prépare automatiquement des clips verticaux prêts pour TikTok,
+Reels et YouTube Shorts.
+</p>
+
+<div class="actions">
+<button class="btn primary" onclick="scrollToApp()">Créer mes Shorts →</button>
+<button class="btn ghost" onclick="document.querySelector('#features').scrollIntoView()">
+Voir comment ça marche
+</button>
+</div>
+</section>
+
+<section class="demo" id="app">
+<div class="app">
+
+<div class="appbar">
+<b>Créer un nouveau projet</b>
+<span class="status">● IA prête</span>
+</div>
+
+<div class="drop" id="drop">
+<div>
+<div class="icon">🎬</div>
+<h3>Glisse ta vidéo ici</h3>
+<p>MP4, MOV ou WebM · limite selon ton forfait</p>
+
+<input id="file" type="file" accept="video/*" hidden>
+
+<button class="btn primary" onclick="document.getElementById('file').click()">
+Choisir une vidéo
+</button>
+
+<div id="filename" style="margin-top:13px;color:#c4b5fd;font-size:13px"></div>
+</div>
+</div>
+
+<div class="fileinfo" id="fileinfo">
+
+<div class="filetop">
+<div>
+<b id="selectedName">Vidéo</b>
+<div class="filemeta" id="durationText">Durée : —</div>
+</div>
+
+<button class="btn ghost" onclick="resetFile()">Changer</button>
+</div>
+
+<div class="limits">
+<span class="pill" id="planPill">FREE · 30 min max</span>
+<span class="pill">🤖 Détection IA</span>
+<span class="pill">📱 Format 9:16</span>
+</div>
+
+<div class="warning" id="warning"></div>
+
+<button class="btn primary" id="analyzeBtn"
+style="width:100%;margin-top:13px"
+onclick="analyzeVideo()">
+✨ Analyser avec l’IA
+</button>
+
+</div>
+
+<div class="process" id="process">
+
+<div class="procrow">
+<span id="procText">Analyse des scènes et de la transcription…</span>
+<span id="procPct">0%</span>
+</div>
+
+<div class="bar">
+<div class="fill" id="fill"></div>
+</div>
+
+</div>
+
+<div class="results" id="results">
+
+<div class="resulthead">
+<b>✨ Tes Shorts sont prêts</b>
+<span class="pill" id="resultCount">—</span>
+</div>
+
+<div class="clipgrid" id="clipgrid"></div>
+
+</div>
+
+</div>
+</section>
+
+<section class="features" id="features">
+
+<div class="section-title">
+<h2>L’IA fait le travail lourd</h2>
+<p>Tu importes. ClipForgeAI analyse. Tu récupères les meilleurs moments.</p>
+</div>
+
+<div class="grid">
+
+<div class="card">
+<div class="ico">🤖</div>
+<h3>Détection intelligente</h3>
+<p>
+Analyse de la transcription et des moments forts pour sélectionner
+les passages les plus prometteurs.
+</p>
+</div>
+
+<div class="card">
+<div class="ico">📱</div>
+<h3>Shorts 9:16</h3>
+<p>
+Les clips sont préparés pour les formats verticaux TikTok,
+Reels et YouTube Shorts.
+</p>
+</div>
+
+<div class="card">
+<div class="ico">💬</div>
+<h3>Sous-titres IA</h3>
+<p>
+Génération automatique des sous-titres et rendu vertical
+dans le pipeline final.
+</p>
+</div>
+
+</div>
+</section>
+
+<section class="pricing" id="pricing">
+
+<div class="section-title">
+<h2>Choisis ton niveau</h2>
+<p>Plus ton forfait monte, plus tu peux traiter des vidéos longues.</p>
+</div>
+
+<div class="plans">
+
+<div class="plan">
+<h3>Free</h3>
+<div class="price">0€ <small>/ mois</small></div>
+<ul>
+<li>Vidéo jusqu’à <b>30 min</b></li>
+<li>3 vidéos / mois</li>
+<li>3 clips / vidéo</li>
+<li>Watermark</li>
+</ul>
+<button class="btn ghost" onclick="selectPlan('Free',30)">
+Utiliser Free
+</button>
+</div>
+
+<div class="plan pop">
+<span class="tag">POPULAIRE</span>
+<h3>Creator</h3>
+<div class="price">9,99€ <small>/ mois</small></div>
+<ul>
+<li>Vidéo jusqu’à <b>2 heures</b></li>
+<li>30 vidéos / mois</li>
+<li>Sans watermark</li>
+<li>Sous-titres IA</li>
+</ul>
+<button class="btn primary" onclick="selectPlan('Creator',120)">
+Choisir Creator
+</button>
+</div>
+
+<div class="plan">
+<h3>Pro</h3>
+<div class="price">19,99€ <small>/ mois</small></div>
+<ul>
+<li>Vidéo jusqu’à <b>4 heures</b></li>
+<li>100 vidéos / mois</li>
+<li>Priorité de traitement</li>
+<li>Styles avancés</li>
+</ul>
+<button class="btn ghost" onclick="selectPlan('Pro',240)">
+Choisir Pro
+</button>
+</div>
+
+</div>
+</section>
+
+<footer class="footer">
+© 2026 ClipForgeAI · Transforme une vidéo en contenu.
+</footer>
+
+<script>
+
+let plan={name:'Free',max:30};
+
+const drop=document.getElementById('drop');
+const file=document.getElementById('file');
+const filename=document.getElementById('filename');
+const info=document.getElementById('fileinfo');
+const warning=document.getElementById('warning');
+const analyze=document.getElementById('analyzeBtn');
+
+let selected=null;
+let duration=0;
+
+function scrollToApp(){
+document.querySelector('#app').scrollIntoView({behavior:'smooth'})
+}
+
+function selectPlan(name,max){
+plan={name,max};
+document.getElementById('planPill').textContent=
+name.toUpperCase()+' · '+max+' min max';
+
+scrollToApp();
+
+if(selected)validate();
+}
+
+function showFile(f){
+
+if(!f)return;
+
+if(!f.type.startsWith('video/')){
+alert('Choisis un fichier vidéo.');
+return;
+}
+
+selected=f;
+
+filename.textContent='✓ '+f.name+' sélectionnée';
+
+document.getElementById('selectedName').textContent=f.name;
+
+info.style.display='block';
+
+warning.style.display='none';
+
+analyze.disabled=true;
+analyze.style.opacity='.5';
+
+const v=document.createElement('video');
+
+v.preload='metadata';
+
+v.onloadedmetadata=()=>{
+duration=v.duration/60;
+
+document.getElementById('durationText').textContent=
+'Durée : '+formatDuration(v.duration);
+
+validate();
+};
+
+v.src=URL.createObjectURL(f);
+}
+
+function validate(){
+
+if(!duration)return;
+
+document.getElementById('planPill').textContent=
+plan.name.toUpperCase()+' · '+plan.max+' min max';
+
+if(duration>plan.max){
+
+warning.style.display='block';
+
+warning.textContent=
+'⚠️ Cette vidéo dure '+formatDuration(duration*60)+
+'. Ton forfait '+plan.name+
+' accepte jusqu’à '+plan.max+' min.';
+
+analyze.disabled=true;
+analyze.style.opacity='.5';
+
+}else{
+
+warning.style.display='none';
+
+analyze.disabled=false;
+analyze.style.opacity='1';
+
+}
+}
+
+function formatDuration(s){
+
+s=Math.round(s);
+
+let h=Math.floor(s/3600);
+let m=Math.floor(s%3600/60);
+let sec=s%60;
+
+return (h?h+'h ':'')+
+(m?m+'min ':'')+
+sec+'s';
+}
+
+function setProgress(p,text){
+
+document.getElementById('fill').style.width=p+'%';
+document.getElementById('procPct').textContent=p+'%';
+document.getElementById('procText').textContent=text;
+
+}
+
+async function analyzeVideo(){
+
+if(!selected||duration>plan.max)return;
+
+document.getElementById('process').style.display='block';
+document.getElementById('results').style.display='none';
+
+analyze.disabled=true;
+
+setProgress(5,'Envoi de la vidéo…');
+
+const fd=new FormData();
+
+fd.append('video',selected);
+
+try{
+
+setProgress(12,'Transcription avec Whisper…');
+
+const res=await fetch('/api/analyze',{
+method:'POST',
+body:fd
+});
+
+setProgress(80,'Création des Shorts…');
+
+const data=await res.json();
+
+if(!res.ok||!data.ok)
+throw new Error(data.error||'Erreur inconnue');
+
+renderResults(data.clips);
+
+setProgress(100,'Terminé !');
+
+setTimeout(()=>{
+
+document.getElementById('process').style.display='none';
+document.getElementById('results').style.display='block';
+
+analyze.disabled=false;
+
+},500);
+
+}catch(e){
+
+document.getElementById('process').style.display='none';
+
+analyze.disabled=false;
+
+alert('Erreur ClipForgeAI : '+e.message);
+
+}
+
+}
+
+function renderResults(clips){
+
+document.getElementById('resultCount').textContent=
+clips.length+' Shorts générés';
+
+const grid=document.getElementById('clipgrid');
+
+grid.innerHTML='';
+
+clips.forEach((c,i)=>{
+
+const card=document.createElement('div');
+
+card.className='clip';
+
+card.innerHTML=`
+
+<video controls playsinline preload="metadata"
+style="width:100%;height:230px;object-fit:cover;border-radius:11px;background:#000"
+src="${c.url}">
+</video>
+
+<strong>Short ${i+1}</strong>
+
+<small>
+${formatDuration(c.start)} → ${formatDuration(c.end)}
+· Score ${c.score}/100
+</small>
+
+<a class="btn primary"
+style="display:block;text-align:center;text-decoration:none;margin-top:10px;padding:8px"
+href="${c.url}" download>
+⬇ Télécharger
+</a>
+
+`;
+
+grid.appendChild(card);
+
+});
+
+}
+
+function resetFile(){
+
+selected=null;
+duration=0;
+file.value='';
+filename.textContent='';
+
+info.style.display='none';
+
+document.getElementById('results').style.display='none';
+document.getElementById('process').style.display='none';
+
+setProgress(
+0,
+'Analyse des scènes et de la transcription…'
+);
+
+}
+
+file.addEventListener('change',e=>{
+showFile(e.target.files[0]);
+});
+
+['dragenter','dragover'].forEach(x=>{
+
+drop.addEventListener(x,e=>{
+e.preventDefault();
+drop.classList.add('drag');
+});
+
+});
+
+['dragleave','drop'].forEach(x=>{
+
+drop.addEventListener(x,e=>{
+e.preventDefault();
+drop.classList.remove('drag');
+});
+
+});
+
+drop.addEventListener('drop',e=>{
+showFile(e.dataTransfer.files[0]);
+});
+
+</script>
+
+</body>
+</html>
